@@ -61,13 +61,13 @@ import           Data.Semigroup
 
 import           Network.URI
 
-#ifdef UNIX
-import           System.Posix.Process (getProcessID)
-#elif defined(WINDOWS)
-import           System.Win32.Process (getCurrentProcessId)
-#else
-#error Need either POSIX or Win32 API for MonadBeamInsertReturning
-#endif
+-- #ifdef UNIX
+-- import           System.Posix.Process (getProcessID)
+-- #elif defined(WINDOWS)
+-- import           System.Win32.Process (getCurrentProcessId)
+-- #else
+-- #error Need either POSIX or Win32 API for MonadBeamInsertReturning
+-- #endif
 
 import           Text.Read (readMaybe)
 
@@ -278,15 +278,7 @@ runInsertReturningList SqliteInsertReturningNoRows = pure []
 runInsertReturningList (SqliteInsertReturning nm insertStmt_) =
   do (logger, conn) <- SqliteM ask
      SqliteM . liftIO $ do
-
-#ifdef UNIX
-       processId <- fromString . show <$> getProcessID
-#elif defined(WINDOWS)
-       processId <- fromString . show <$> getCurrentProcessId
-#else
-#error Need either POSIX or Win32 API for MonadBeamInsertReturning
-#endif
-
+       let processId = "android"
        let startSavepoint =
              execute_ conn (Query ("SAVEPOINT insert_savepoint_" <> processId))
            rollbackToSavepoint =
