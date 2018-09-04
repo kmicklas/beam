@@ -63,6 +63,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Lazy as TL
 import           Data.Time
+import           Data.UUID.Types (UUID, toByteString)
 import           Data.Word
 #if !MIN_VERSION_base(4, 11, 0)
 import           Data.Semigroup
@@ -909,6 +910,10 @@ instance HasDefaultSqlDataType SqliteDataTypeSyntax LocalTime where
   defaultSqlDataType _ _ = timestampType Nothing False
 instance HasDefaultSqlDataTypeConstraints SqliteColumnSchemaSyntax LocalTime
 
+instance HasDefaultSqlDataType SqliteDataTypeSyntax UUID where
+  defaultSqlDataType _ _ = sqliteBlobType
+instance HasDefaultSqlDataTypeConstraints SqliteColumnSchemaSyntax UUID
+
 instance HasSqlValueSyntax SqliteValueSyntax ByteString where
   sqlValueSyntax bs = SqliteValueSyntax (emitValue (SQLBlob bs))
 
@@ -923,6 +928,9 @@ instance HasSqlValueSyntax SqliteValueSyntax LocalTime where
 instance HasSqlValueSyntax SqliteValueSyntax Day where
   sqlValueSyntax tm = SqliteValueSyntax (emitValue (SQLText (fromString tmStr)))
     where tmStr = formatTime defaultTimeLocale (iso8601DateFormat Nothing) tm
+
+instance HasSqlValueSyntax SqliteValueSyntax UUID where
+  sqlValueSyntax uuid = SqliteValueSyntax (emitValue (SQLBlob (BL.toStrict (toByteString uuid))))
 
 -- * Equality checks
 #define HAS_SQLITE_EQUALITY_CHECK(ty)                       \
@@ -953,3 +961,4 @@ HAS_SQLITE_EQUALITY_CHECK(ZonedTime)
 HAS_SQLITE_EQUALITY_CHECK(Char)
 HAS_SQLITE_EQUALITY_CHECK(Integer)
 HAS_SQLITE_EQUALITY_CHECK(Scientific)
+HAS_SQLITE_EQUALITY_CHECK(UUID)

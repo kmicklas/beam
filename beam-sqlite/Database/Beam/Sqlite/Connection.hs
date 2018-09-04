@@ -54,6 +54,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import           Data.Time ( LocalTime, UTCTime, Day
                            , utc, utcToLocalTime )
+import           Data.UUID.Types (UUID, fromByteString)
 import           Data.Word
 #if !MIN_VERSION_base(4,11,0)
 import           Data.Semigroup
@@ -115,6 +116,12 @@ instance FromBackendRow Sqlite LocalTime where
 instance FromBackendRow Sqlite Scientific where
   fromBackendRow = unSqliteScientific <$> fromBackendRow
 instance FromBackendRow Sqlite SqliteScientific
+instance FromBackendRow Sqlite UUID where
+  fromBackendRow = do
+    blob <- fromBackendRow
+    case fromByteString blob of
+      Just uuid -> pure uuid
+      Nothing -> fail "Need 16 bytes to parse UUID"
 
 newtype SqliteScientific = SqliteScientific { unSqliteScientific :: Scientific }
 instance FromField SqliteScientific where
