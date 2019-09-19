@@ -174,7 +174,7 @@ between_ (QExpr a) (QExpr min_) (QExpr max_) =
   QExpr (liftA3 betweenE a min_ max_)
 
 class SqlIn expr a | a -> expr where
-  -- | SQL @IN@ predicate
+  -- | SQL @IN@ list predicate
   in_ :: a -> [ a ] -> expr Bool
 
 instance BeamSqlBackend be => SqlIn (QGenExpr context be s) (QGenExpr context be s a) where
@@ -193,7 +193,16 @@ instance ( HasSqlInTable be, Beamable table ) =>
     where toExpr :: table (QGenExpr context be s) -> TablePrefix -> BeamSqlBackendExpressionSyntax be
           toExpr = fmap rowE . sequence . allBeamValues (\(Columnar' (QExpr x)) -> x)
 
-infix 4 `between_`, `in_`
+-- | SQL @IN@ subquery predicate
+inQuery_
+  :: ( BeamSqlBackend be, HasQBuilder be, Projectible be (QExpr be s a) )
+  => QGenExpr context be s a
+  -> Q be db s (QExpr be s a)
+  -> QGenExpr context be s Bool
+inQuery_ = undefined
+
+
+infix 4 `between_`, `in_`, `inQuery_`
 
 -- | Class for expression types or expression containers for which there is a
 --   notion of equality.
