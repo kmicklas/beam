@@ -199,7 +199,9 @@ inQuery_
   => QGenExpr context be s a
   -> Q be db s (QExpr be s a)
   -> QGenExpr context be s Bool
-inQuery_ = undefined
+inQuery_ row q = QExpr $ inQueryE <$> toExpr row <*> subqueryE q
+    where toExpr :: table (QGenExpr context be s) -> TablePrefix -> BeamSqlBackendExpressionSyntax be
+          toExpr = fmap rowE . sequence . allBeamValues (\(Columnar' (QExpr x)) -> x)
 
 
 infix 4 `between_`, `in_`, `inQuery_`
