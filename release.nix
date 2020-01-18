@@ -45,3 +45,4 @@ let
     );
 
 in mergeMaps (map mkPrefixedPackages ghcVersions)
+
