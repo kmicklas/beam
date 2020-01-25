@@ -7,6 +7,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE InstanceSigs #-}
 
+
 -- | Defines a generic schema type that can be used to define schemas for Beam tables
 module Database.Beam.Schema.Tables
     (
