@@ -12,3 +12,4 @@ jobs:
       with:
         name: kmicklas-beam
         file: release.nix
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
