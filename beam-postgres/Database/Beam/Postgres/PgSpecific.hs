@@ -709,9 +709,10 @@ instance (Typeable x, FromJSON x) => Pg.FromField (PgJSON x) where
   fromField field d =
     if Pg.typeOid field /= Pg.typoid Pg.json
     then Pg.returnError Pg.Incompatible field ""
-    else case decodeStrict =<< d of
-           Just d' -> pure (PgJSON d')
+    else case eitherDecodeStrict <$> d of
            Nothing -> Pg.returnError Pg.UnexpectedNull field ""
+           Just (Left e) -> Pg.returnError Pg.ConversionFailed field e
+           Just (Right d') -> pure (PgJSON d')
 
 instance (Typeable a, FromJSON a) => FromBackendRow Postgres (PgJSON a)
 instance ToJSON a => HasSqlValueSyntax PgValueSyntax (PgJSON a) where
@@ -721,7 +722,7 @@ instance ToJSON a => HasSqlValueSyntax PgValueSyntax (PgJSON a) where
 
 -- | The Postgres @JSONB@ type, which stores JSON-encoded data in a
 -- postgres-specific binary format. Like 'PgJSON', the type parameter indicates
--- the Hgaskell type which the JSON encodes.
+-- the Haskell type which the JSON encodes.
 --
 -- Fields with this type are automatically given the Postgres @JSONB@ type
 newtype PgJSONB a = PgJSONB a
@@ -734,9 +735,10 @@ instance (Typeable x, FromJSON x) => Pg.FromField (PgJSONB x) where
   fromField field d =
     if Pg.typeOid field /= Pg.typoid Pg.jsonb
     then Pg.returnError Pg.Incompatible field ""
-    else case decodeStrict =<< d of
-           Just d' -> pure (PgJSONB d')
+    else case eitherDecodeStrict <$> d of
            Nothing -> Pg.returnError Pg.UnexpectedNull field ""
+           Just (Left e) -> Pg.returnError Pg.ConversionFailed field e
+           Just (Right d') -> pure (PgJSONB d')
 
 instance (Typeable a, FromJSON a) => FromBackendRow Postgres (PgJSONB a)
 instance ToJSON a => HasSqlValueSyntax PgValueSyntax (PgJSONB a) where
@@ -1510,7 +1512,7 @@ instance HasDefaultSqlDataType Postgres a
 -- know the shape of the data stored, substitute 'Value' for this type
 -- parameter.
 --
--- For more information on Psotgres json support see the postgres
+-- For more information on Postgres JSON support see the postgres
 -- <https://www.postgresql.org/docs/current/static/functions-json.html manual>.
 
 

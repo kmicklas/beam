@@ -100,7 +100,7 @@ import qualified Lens.Micro as Lens
 --
 --   Entities are documented under [the corresponding
 --   section](Database.Beam.Schema#entities) and in the
---   [manual](http://tathougies.github.io/beam/user-guide/databases/)
+--   [manual](https://haskell-beam.github.io/beam/user-guide/databases/)
 class Database be db where
 
     -- | Default derived function. Do not implement this yourself.
@@ -137,7 +137,7 @@ class Database be db where
 -- | Automatically provide names for tables, and descriptions for tables (using
 --   'defTblFieldSettings'). Your database must implement 'Generic', and must be
 --   auto-derivable. For more information on name generation, see the
---   [manual](https://tathougies.github.io/beam/user-guide/models)
+--   [manual](https://haskell-beam.github.io/beam/user-guide/models)
 defaultDbSettings :: ( Generic (DatabaseSettings be db)
                      , GAutoDbSettings (Rep (DatabaseSettings be db) ()) ) =>
                      DatabaseSettings be db
@@ -274,7 +274,7 @@ instance IsString (FieldModification (TableField tbl) a) where
 -- * Database entity types
 
 -- | An entity tag for tables. See the documentation for 'Table' or consult the
---   [manual](https://tathougies.github.io/beam/user-guide/models) for more.
+--   [manual](https://haskell-beam.github.io/beam/user-guide/models) for more.
 data TableEntity (tbl :: (* -> *) -> *)
 data ViewEntity (view :: (* -> *) -> *)
 --data UniqueConstraint (tbl :: (* -> *) -> *) (c :: (* -> *) -> *)
@@ -591,7 +591,7 @@ class (Typeable table, Beamable table, Beamable (PrimaryKey table)) => Table (ta
 --   to "zip" tables with different column tags together. Always instantiate an
 --   empty 'Beamable' instance for tables, primary keys, and any type that you
 --   would like to embed within either. See the
---   [manual](https://tathougies.github.io/beam/user-guide/models) for more
+--   [manual](https://haskell-beam.github.io/beam/user-guide/models) for more
 --   information on embedding.
 class Beamable table where
     zipBeamFieldsM :: Applicative m =>
@@ -768,7 +768,7 @@ pk = primaryKey
 
 -- | Return a 'TableSettings' for the appropriate 'table' type where each column
 --   has been given its default name. See the
---   [manual](https://tathougies.github.io/beam/user-guide/models) for
+--   [manual](https://haskell-beam.github.io/beam/user-guide/models) for
 --   information on the default naming convention.
 defTblFieldSettings :: ( Generic (TableSettings table)
                        , GDefaultTableFieldSettings (Rep (TableSettings table) ())) =>

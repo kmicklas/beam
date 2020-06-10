@@ -165,6 +165,21 @@ value.
 
     `_addressLine1 = "address1"`
 
+When renaming a field referring to a foreign key (for example the
+`_addressForUser` field), remember to wrap the field name with the table's
+`PrimaryKey` constructor:
+
+`_addressForUser = UserId "user"`
+
+Given that in part one we defined `UserId` as the `PrimaryKey` constructor for
+`UserT`:
+
+```haskell
+instance Table UserT where
+   data PrimaryKey UserT f = UserId (Columnar f Text) deriving (Generic, Beamable)
+   primaryKey = UserId . _userEmail
+```
+
 If you didn't need to modify any of the field names, you can omit
 `modifyTableFields`. For example, to simply produce a database with
 the first table named `users` and the second named `user_addresses`,
