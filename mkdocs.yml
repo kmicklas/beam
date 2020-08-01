@@ -46,13 +46,13 @@ pages:
       - 'Release Notes': 'about/release-notes.md'
 markdown_extensions:
   - admonition
-  - docs.markdown.beam_query:
-      template_dir: 'docs/beam-templates'
-      cache_dir: 'docs/.beam-query-cache'
-      conf: 'docs/beam.yaml'
-      base_dir: '.'
-      enabled_backends: [ beam-postgres, beam-sqlite, beam-mysql, beam-mssql ]
-  - docs.markdown.markdown_fenced_code_tabs
+#   - docs.markdown.beam_query:
+#       template_dir: 'docs/beam-templates'
+#       cache_dir: 'docs/.beam-query-cache'
+#       conf: 'docs/beam.yaml'
+#       base_dir: '.'
+#       enabled_backends: [ beam-postgres, beam-sqlite, beam-mysql, beam-mssql ]
+  # - docs.markdown.markdown_fenced_code_tabs
   - def_list
   - codehilite
   - footnotes
