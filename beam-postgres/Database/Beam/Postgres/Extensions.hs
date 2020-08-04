@@ -195,3 +195,12 @@ pgDropExtensionProvider =
      pure (PotentialAction (HS.fromList [p extP]) mempty
                            (pure (MigrationCommand cmd MigrationKeepsData))
                            ("Unload the postgres extension " <> ext) 1)
+
+-- *** Built-in extensions
+
+-- | Data type representing definitions contained in the @plpgsql@ extension
+data PlPgSql = PlPgSql
+
+instance IsPgExtension PlPgSql where
+  pgExtensionName Proxy = "plpgsql"
+  pgExtensionBuild = PlPgSql
