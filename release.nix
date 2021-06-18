@@ -1,4 +1,4 @@
-{ nixpkgs ? import ./nixpkgs/pinned.nix {} }: with nixpkgs;
+{ nixpkgs ? import <nixpkgs> {} }: with nixpkgs;
 
 let
   beamPackages = [
@@ -9,29 +9,40 @@ let
     "beam-sqlite"
   ];
   ghcVersions = {
-    ghc865 = haskell.packages.ghc865;
-    ghc883 = haskell.packages.ghc883.extend (composeExtensionList [
-      (pinHackageVersions {
-        haskell-src-exts = "1.23.0";
+    ghc865 = haskell.packages.ghc865Binary.extend (composeExtensionList [
+      (_: super: {
+        ghc = super.ghc.overrideAttrs (drv: {
+          passthru = drv.passthru // {
+            haskellCompilerName = "ghc-8.6.5";
+          };
+        });
       })
     ]);
-  };
-  baseHackageVersions = {
-    hashable = "1.3.0.0";
-    network = "2.6.3.1";
-    postgresql-libpq = "0.9.4.2";
-    tmp-postgres = "1.34.1.0";
-    vector-sized = "1.4.0.0";
-  };
-  baseHackageDirectVersions = {
-    generic-monoid = {
-      version = "0.1.0.1";
-      sha256 = "0n4ry5ag9m5hzvhph7zqrl2scqgy0x58mm88j6q4aqck9rzd8f3j";
-    };
-    sqlite-simple = {
-      version = "0.4.18.0";
-      sha256 = "1crp86argxqv5ryfiyj5v17a3wb8ngnb1zbhhx6d99i83skm5i86";
-    };
+    # ghc884 = haskell.packages.ghc884;
+    # ghc8104 = haskell.packages.ghc8104;
+    ghc901 = haskell.packages.ghc901.extend (composeExtensionList [
+      (_: super: {
+        blaze-textual = haskell.lib.overrideCabal super.blaze-textual (_: {
+          jailbreak = true;
+          # https://github.com/bos/blaze-textual/pull/14
+          src = nixpkgs.fetchFromGitHub {
+            owner = "bos";
+            repo = "blaze-textual";
+            rev = "c93b53a4aaad5a6ee2ddf90010957981d75d3579";
+            sha256 = "0z0ky132j5bcs4i5wvsrd09ndny7jwsaxvaigw5jiszyibj0syyg";
+          };
+        });
+        cryptohash-md5 = haskell.lib.doJailbreak super.cryptohash-md5;
+        cryptohash-sha1 = haskell.lib.doJailbreak super.cryptohash-sha1;
+        cryptonite = haskell.lib.disableCabalFlag super.cryptonite "integer-gmp";
+        generic-monoid = haskell.lib.doJailbreak super.generic-monoid;
+        mono-traversable = haskell.lib.dontCheck super.mono-traversable;
+        pqueue = haskell.lib.doJailbreak super.pqueue;
+      })
+      (pinHackageVersions {
+        memory = "0.16.0";
+      })
+    ]);
   };
 
   composeExtensionList = lib.foldr lib.composeExtensions (_: _: {});
@@ -40,22 +51,12 @@ let
 
   pinHackageVersions = versions: self: _:
     lib.mapAttrs (n: v: self.callHackage n v {}) versions;
-  pinHackageDirectVersions = versions: self: _:
-    lib.mapAttrs (n: v: self.callHackageDirect {
-      pkg = n;
-      ver = v.version;
-      sha256 = v.sha256;
-    } {}) versions;
 
   mkPackageSet = ghc: ghc.extend (composeExtensionList [
-    (pinHackageVersions baseHackageVersions)
-    (pinHackageDirectVersions baseHackageDirectVersions)
     (self: _: lib.genAttrs beamPackages (name:
       self.callCabal2nix name (./. + "/${name}") {}
     ))
     (applyToPackages haskell.lib.dontCheck [
-      "aeson"
-      "network"
       "tmp-postgres"
     ])
     (_: super: {
