@@ -1,12 +1,16 @@
 { nixpkgs ? import <nixpkgs> {} }: with nixpkgs;
 
 let
-  beamPackages = [
+  beamPackages = ghc: [
     "beam-core"
     "beam-migrate"
-    "beam-migrate-cli"
     "beam-postgres"
     "beam-sqlite"
+  ] ++ nixpkgs.lib.optionals (ghc.ghc.version != "8.6.5") [
+    # For unclear reasons, this fails to build on 8.6.5 with missing dynamic
+    # libraries. It's probably somehow related to it being a binary GHC
+    # distribution as opposed to built normally with nix.
+    "beam-migrate-cli"
   ];
   ghcVersions = {
     ghc865 = haskell.packages.ghc865Binary.extend (composeExtensionList [
@@ -16,6 +20,7 @@ let
             haskellCompilerName = "ghc-8.6.5";
           };
         });
+        constraints-extras = haskell.lib.disableCabalFlag super.constraints-extras "build-readme";
       })
     ]);
     # ghc884 = haskell.packages.ghc884;
@@ -53,7 +58,7 @@ let
     lib.mapAttrs (n: v: self.callHackage n v {}) versions;
 
   mkPackageSet = ghc: ghc.extend (composeExtensionList [
-    (self: _: lib.genAttrs beamPackages (name:
+    (self: _: lib.genAttrs (beamPackages ghc) (name:
       self.callCabal2nix name (./. + "/${name}") {}
     ))
     (applyToPackages haskell.lib.dontCheck [
@@ -64,10 +69,8 @@ let
       beam-postgres = haskell.lib.addBuildTool super.beam-postgres postgresql;
     })
   ]);
-  mkPrefixedPackages = ghcVersion: ghc: { recurseForDerivations = true; } //
-    (lib.mapAttrs'
-      (name: value: lib.nameValuePair "${ghcVersion}_${name}" value)
-      (lib.genAttrs beamPackages (name: (mkPackageSet ghc)."${name}"))
-    );
+  mkPrefixedPackages = ghcVersion: ghc:
+    { recurseForDerivations = true; } //
+    (lib.genAttrs (beamPackages ghc) (name: (mkPackageSet ghc)."${name}"));
 
 in lib.mapAttrs mkPrefixedPackages ghcVersions
