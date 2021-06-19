@@ -6,7 +6,7 @@ let
     "beam-migrate"
     "beam-postgres"
     "beam-sqlite"
-  ] ++ nixpkgs.lib.optionals (ghc.ghc.version != "8.6.5") [
+  ] ++ lib.optionals (ghc.ghc.version != "8.6.5") [
     # For unclear reasons, this fails to build on 8.6.5 with missing dynamic
     # libraries. It's probably somehow related to it being a binary GHC
     # distribution as opposed to built normally with nix.
@@ -29,7 +29,7 @@ let
       (_: super: {
         blaze-textual = haskell.lib.overrideCabal super.blaze-textual (_: {
           # https://github.com/bos/blaze-textual/pull/14
-          src = nixpkgs.fetchFromGitHub {
+          src = fetchFromGitHub {
             owner = "bos";
             repo = "blaze-textual";
             rev = "c93b53a4aaad5a6ee2ddf90010957981d75d3579";
