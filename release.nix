@@ -13,22 +13,21 @@ let
     "beam-migrate-cli"
   ];
   ghcVersions = {
-    ghc865 = haskell.packages.ghc865Binary.extend (composeExtensionList [
-      (_: super: {
-        ghc = super.ghc.overrideAttrs (drv: {
-          passthru = drv.passthru // {
-            haskellCompilerName = "ghc-8.6.5";
-          };
-        });
-        constraints-extras = haskell.lib.disableCabalFlag super.constraints-extras "build-readme";
-      })
-    ]);
-    # ghc884 = haskell.packages.ghc884;
-    # ghc8104 = haskell.packages.ghc8104;
+    ghc865 = haskell.packages.ghc865Binary.extend (_: super: {
+      ghc = super.ghc.overrideAttrs (drv: {
+        passthru = drv.passthru // {
+          # TODO: Backport this to 21.05 since it's fixed on master.
+          haskellCompilerName = "ghc-8.6.5";
+        };
+      });
+      # Similar weird library issue as with beam-migrate-cli:
+      constraints-extras = haskell.lib.disableCabalFlag super.constraints-extras "build-readme";
+    });
+    ghc884 = haskell.packages.ghc884;
+    ghc8104 = haskell.packages.ghc8104;
     ghc901 = haskell.packages.ghc901.extend (composeExtensionList [
       (_: super: {
         blaze-textual = haskell.lib.overrideCabal super.blaze-textual (_: {
-          jailbreak = true;
           # https://github.com/bos/blaze-textual/pull/14
           src = nixpkgs.fetchFromGitHub {
             owner = "bos";
@@ -37,13 +36,18 @@ let
             sha256 = "0z0ky132j5bcs4i5wvsrd09ndny7jwsaxvaigw5jiszyibj0syyg";
           };
         });
-        cryptohash-md5 = haskell.lib.doJailbreak super.cryptohash-md5;
-        cryptohash-sha1 = haskell.lib.doJailbreak super.cryptohash-sha1;
         cryptonite = haskell.lib.disableCabalFlag super.cryptonite "integer-gmp";
-        generic-monoid = haskell.lib.doJailbreak super.generic-monoid;
-        mono-traversable = haskell.lib.dontCheck super.mono-traversable;
-        pqueue = haskell.lib.doJailbreak super.pqueue;
       })
+      (applyToPackages haskell.lib.dontCheck [
+        "mono-traversable"
+      ])
+      (applyToPackages haskell.lib.doJailbreak [
+        "blaze-textual"
+        "cryptohash-md5"
+        "cryptohash-sha1"
+        "generic-monoid"
+        "pqueue"
+      ])
       (pinHackageVersions {
         memory = "0.16.0";
       })
