@@ -1,4 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {} }: with nixpkgs;
+{ nixpkgs ? import ./nixpkgs/pinned.nix {} }: with nixpkgs;
 
 let
   beamPackages = ghc: [
