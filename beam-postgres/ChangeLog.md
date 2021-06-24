@@ -1,3 +1,22 @@
+# 0.6.0.0
+
+## Added features
+
+ * `ilike_` supports different types for haystack and needle
+ * Streaming conduit interface in `MonadResource`
+ * GHC 9.0 support
+
+# 0.5.1.0
+
+## Added features
+
+ * `MonadBase` and `MonadBaseControl` instances for `Pg`
+
+## Bug fixes
+
+ * Fix possible memory corruption by copying row data
+ * Remove invalid parentheses emitted by `pgUnnest`
+
 # 0.5.0.0
 
 ## Interface changes

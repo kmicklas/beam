@@ -1,3 +1,14 @@
+# 0.5.1.0
+
+## Added features
+
+ * Expose `IsNotNull` class
+ * GHC 9.0 support
+
+## Bug fixes
+
+ * Order log entries when verifying migration status
+
 # 0.5.0.0
 
 ## Interface changes

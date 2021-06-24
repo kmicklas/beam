@@ -1,3 +1,9 @@
+# 0.5.1.0
+
+## Added features
+
+ * `MonadBase` and `MonadBaseControl` instances for `SqliteM`
+
 # 0.5.0.0
 
 =======
